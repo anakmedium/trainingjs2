@@ -1,0 +1,293 @@
+
+<style>
+.product-list-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.product-card {
+  width: 30%;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.product-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.product-title {
+  font-size: 20px;
+  margin: 0;
+}
+
+.product-description {
+  margin: 10px 0;
+}
+
+.product-price {
+  font-weight: bold;
+  margin: 0;
+}
+
+/* The Modal */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+</style>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latihan JS</title>
+</head>
+<body>
+    <h1>latihan js</h1>
+    <h3 class="customer-name"></h3>
+    <button>Checkout <span class="chart">0</span></button>
+    <ul>
+        <li>-Buatlahvariable untukmenyimpandata username dan jumlahitem yang adapada keranjang</li>
+        <li>-Buatlahsebuahperhitunganuntukmenghitungtotal hargadarisetiapitem yang ditambahkankekeranjang</li>
+        <li>-Buatlahsebuahfungsiuntukmenyimpanitem pada keranjang-Buatlahsebuaharrow function untukmenghitungtotal hargasetelahdiskon</li>
+        <li>-Buatlahcontohpenggunaansebuahvariable global untukmenghitungtotal denganongkoskirim</li>
+        <li>-Buatlahcontohpenggunaanfunctional scope variable untukmenghitungdiskontambahanmenggunakancoupon</li>
+        <li>-Buatlahsebuahevent pada tomboluntukmelakukancheckout-BuatlahsebuahAsynchronous function tunukmendapatkandata product dariAPI</li>
+        <li>-buatlahsebuahfungsiuntukmengambildata product detail dariAPI-buatlahclass Product-BuatlahError Handling pada saatmenggunakanAPI</li>
+    </ul>
+    
+    <div class="product-list-container">
+        
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="myModal">
+        <div class="modal-content">
+           
+        
+        </div>
+    </div>
+
+<script>
+let username = 'Eri Juandi';
+let chart = Array();
+let api = "https://fakestoreapi.com/products";
+document.addEventListener("DOMContentLoaded", function (event) {
+    const custommerName = document.querySelector('.customer-name');
+    custommerName.textContent = `Welcome ${username} !`;
+    // inisiasi list prodak dengan ajax
+    fetchData();
+    
+});
+
+const checkoutButton = document.getElementById('checkoutButton');
+checkoutButton.addEventListener('click', handleCheckout);
+
+function handleCheckout() {
+    console.log('masuk ke sini');
+    // Check if the shopping cart is not empty
+    if (chart.length > 0) {
+        // Generate the modal content
+
+        // Display the modal
+        openModal();
+        // Select the existing modal content
+        const modalContent = generateCheckoutModalContent();
+        
+        // Create a new modal content element for each product detail view
+        const productDetail = document.createElement('div');
+        productDetail.className = 'product-detail';
+
+        productDetail.innerHTML = modalContent;
+        modalContent.appendChild(productDetail);
+
+    } else {
+        // Alert the user that the cart is empty (you can customize this part)
+        alert('Your shopping cart is empty!');
+    }
+}
+
+// Function to generate the modal content based on the items in the shopping cart
+function generateCheckoutModalContent() {
+    // You can customize the content based on your needs
+    let content = '<h2>Your Shopping Cart:</h2>';
+
+    for (const item of chart) {
+        content += `
+            <div>
+                <p>${item.name} - $${item.price}</p>
+            </div>
+        `;
+    }
+
+    // Add total price or any other information you want to include
+    const totalPrice = chart.reduce((total, item) => total + parseFloat(item.price), 0);
+    content += `<p>Total Price: $${totalPrice.toFixed(2)}</p>`;
+
+    return content;
+}
+
+async function fetchData() {
+    try {
+        const response = await fetch(api);
+        const data = await response.json();
+        const parent = document.querySelector('.product-list-container'); // Use querySelector here
+
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+                console.log(key, data[key]);
+                // var html = 
+                parent.innerHTML += `
+                    <div class="product-card">
+                        <img src="${data[key].image}" alt="Product Name">
+                        <h3 class="product-title">${data[key].category}</h3>
+                        <h4 class="product-title">${data[key].title}</h4>
+                        <p class="product-description">${data[key].description}</p>
+                        <p class="product-price">$. ${data[key].price}</p>
+                        <button type="button" class="btn-add-product" 
+                            data-row-id="${data[key].id}"
+                            data-row-price="${data[key].price}"
+                            data-row-name="${data[key].title}"
+                        >Add To Chart</button>
+                        <button type="button" class="btn-detail-product" 
+                            data-row-id="${data[key].id}"
+                        >Product Detail</button>
+                        
+                    </div>
+                `;
+            }
+        }
+
+        const addToCartButtons = document.querySelectorAll('.btn-add-product');
+        const detailButtons = document.querySelectorAll('.btn-detail-product');
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', handleAddToCart);
+        });
+
+        detailButtons.forEach(button => {
+            button.addEventListener('click', handleShowDetail);
+        });
+        
+    } catch (error) {
+        console.error('Terjadi error:', error.message);
+    }
+}
+
+function handleAddToCart(event) {
+    const productId = event.target.getAttribute('data-row-id');
+    const productPrice = event.target.getAttribute('data-row-price');
+    const productName = event.target.getAttribute('data-row-Title');
+    const chartCountElement = document.querySelector('.chart');
+
+    
+    const product = {
+        id:productId,
+        name: productName,
+        price: productPrice
+    };
+
+    chart.push(product);
+    chartCountElement.textContent = chart.length;
+    console.log(chart.length)
+}
+
+async function handleShowDetail(event) {
+    
+    try {
+        const productId = event.target.getAttribute('data-row-id');
+        const response = await fetch(`${api}/${productId}`);
+        const data = await response.json();
+
+        openModal();
+        // Select the existing modal content
+        const modalContent = document.querySelector('.modal-content');
+
+        // Create a new modal content element for each product detail view
+        const productDetail = document.createElement('div');
+        productDetail.className = 'product-detail';
+
+        productDetail.innerHTML = `
+            <span class="close" onclick="closeModal()">&times;</span>
+            <img style="width="50%; height="50%" src="${data.image}" alt="Product Name">
+            <h3 class="product-title">${data.category}</h3>
+            <h4 class="product-title">${data.title}</h4>
+            <p class="product-description">${data.description}</p>
+            <p class="product-price">$${data.price}</p>
+            <button type="button" class="btn-add-detail-product" 
+                data-row-id="${data.id}"
+                data-row-price="${data.price}"
+                data-row-name="${data.title}"
+            >Add To Cart</button>
+        `;
+
+        // Append the new product detail to the existing modal content
+        modalContent.appendChild(productDetail);
+
+        const addToCartButtonDetail = productDetail.querySelector('.btn-add-detail-product');
+        addToCartButtonDetail.addEventListener('click', handleAddToCart);
+        
+    } catch (error) {
+        console.error('Terjadi error:', error.message);
+    }
+}
+
+
+
+
+
+// Function to open the modal
+function openModal() {
+  document.getElementById('myModal').style.display = 'block';
+}
+
+// Function to close the modal
+function closeModal() {
+  document.getElementById('myModal').style.display = 'none';
+}
+
+// Close the modal if the user clicks outside of it
+window.onclick = function (event) {
+  const modal = document.getElementById('myModal');
+  if (event.target === modal) {
+    modal.style.display = 'none';
+  }
+};
+
+
+</script>
+</body>
+
+</html>
+
